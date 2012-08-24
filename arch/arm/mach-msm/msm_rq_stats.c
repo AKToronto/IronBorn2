@@ -10,6 +10,9 @@
  * GNU General Public License for more details.
  *
  */
+/*
+ * Qualcomm MSM Runqueue Stats and cpu utilization Interface for Userspace
+ */
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/module.h>
@@ -123,14 +126,19 @@ static int update_average_load(unsigned int freq, unsigned int cpu)
 
 	cur_load = 100 * (wall_time - idle_time) / wall_time;
 
-	
+	/* Calculate the scaled load across CPU */
 	load_at_max_freq = (cur_load * freq) / pcpu->policy_max;
 
 	if (!pcpu->avg_load_maxfreq) {
-		
+		/* This is the first sample in this window*/
 		pcpu->avg_load_maxfreq = load_at_max_freq;
 		pcpu->window_size = wall_time;
 	} else {
+		/*
+		 * The is already a sample available in this window.
+		 * Compute weighted average with prev entry, so that we get
+		 * the precise weighted load.
+		 */
 		pcpu->avg_load_maxfreq =
 			((pcpu->avg_load_maxfreq * pcpu->window_size) +
 			(load_at_max_freq * wall_time)) /
@@ -333,7 +341,7 @@ static int __init msm_rq_stats_init(void)
 	int ret;
 	int i;
 	struct cpufreq_policy cpu_policy;
-	
+	/* Bail out if this is not an SMP Target */
 	if (!is_smp()) {
 		rq_info.init = 0;
 		return -ENOSYS;
