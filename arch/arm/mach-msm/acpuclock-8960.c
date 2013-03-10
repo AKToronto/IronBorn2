@@ -1619,7 +1619,7 @@ out:
 	return rc;
 }
 
-static void __cpuinit hfpll_init(struct scalable *sc, struct core_speed *tgt_s)
+static void hfpll_init(struct scalable *sc, struct core_speed *tgt_s)
 {
 	pr_debug("Initializing HFPLL%d\n", sc - scalable);
 
@@ -1639,7 +1639,7 @@ static void __cpuinit hfpll_init(struct scalable *sc, struct core_speed *tgt_s)
 	hfpll_enable(sc, 0);
 }
 
-static void __cpuinit regulator_init(int cpu, struct acpu_level *lvl)
+static void regulator_init(int cpu, struct acpu_level *lvl)
 {
 	int ret;
 	struct scalable *sc = &scalable[cpu];
@@ -1697,7 +1697,7 @@ static void __cpuinit regulator_init(int cpu, struct acpu_level *lvl)
 	sc->regulators_initialized = true;
 }
 
-static void __cpuinit init_clock_sources(struct scalable *sc,
+static void init_clock_sources(struct scalable *sc,
 				      struct core_speed *tgt_s)
 {
 	uint32_t regval;
@@ -1721,7 +1721,7 @@ static void __cpuinit init_clock_sources(struct scalable *sc,
 	sc->current_speed = tgt_s;
 }
 
-static void __cpuinit per_cpu_init(void *data)
+static void per_cpu_init(void *data)
 {
 	int cpu = smp_processor_id();
 #ifdef CONFIG_APQ8064_ONLY
@@ -1793,7 +1793,7 @@ static void __init cpufreq_table_init(void) {}
 #endif
 
 #define HOT_UNPLUG_KHZ STBY_KHZ
-static int __cpuinit acpuclock_cpu_callback(struct notifier_block *nfb,
+static int acpuclock_cpu_callback(struct notifier_block *nfb,
 					    unsigned long action, void *hcpu)
 {
 	static int prev_khz[NR_CPUS];
