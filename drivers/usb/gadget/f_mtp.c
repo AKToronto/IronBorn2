@@ -65,6 +65,7 @@
 static int htc_mtp_performance_debug;
 static int htc_mtp_open_state;
 #ifdef CONFIG_PERFLOCK
+static int mtp_qos;
 #include <mach/perflock.h>
 #endif
 
@@ -1162,7 +1163,9 @@ static long mtp_ioctl(struct file *fp, unsigned code, unsigned long value)
 		{
 			if (value > 0) {
 				printk(KERN_INFO "[USB][MTP] %s: ioctl MTP_SET_CPU_PERF, files = %d\n", __func__, (int)value);
+#ifdef CONFIG_PERFLOCK
 				mtp_qos_enable((int)value);
+#endif
 			}
 			break;
 		}
