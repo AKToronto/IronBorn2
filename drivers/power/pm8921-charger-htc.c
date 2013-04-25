@@ -3394,7 +3394,7 @@ finish_due_to_no_cable:
 
 static int find_usb_ma_value(int value)
 {
-	int i;
+	int i = 0;
 
 	for (i = ARRAY_SIZE(usb_ma_table) - 1; i >= 0; i--) {
 		if (value >= usb_ma_table[i].usb_ma)
