@@ -1984,10 +1984,11 @@ static void __init select_freq_plan(void)
 	struct acpu_level *l;
 	int tbl_selected = 0;
 
-	
 	if (cpu_is_msm8960()) {
 		enum pvs pvs_id = get_pvs();
-
+#ifdef CONFIG_DEBUG_FS
+		krait_chip_variant = pvs_id;
+#endif
 		scalable = scalable_8960;
 		if (cpu_is_krait_v1()) {
 			acpu_freq_tbl = acpu_freq_tbl_8960_v1[pvs_id];
@@ -2000,13 +2001,12 @@ static void __init select_freq_plan(void)
 			l2_freq_tbl_size = ARRAY_SIZE(l2_freq_tbl_8960_kraitv2);
 			tbl_selected = 2;
 		}
-#ifdef CONFIG_DEBUG_FS
-                krait_version = tbl_selected;
-#endif
 	} else if (cpu_is_apq8064()) {
 		enum pvs pvs_id = get_pvs();
 		enum pvs_v2 pvd_id_v2 = get_pvs_bin();
-
+#ifdef CONFIG_DEBUG_FS
+		krait_chip_variant = pvs_id;
+#endif
 		scalable = scalable_8064;
 		
 		if (get_speed_bin() == 0) {
@@ -2044,7 +2044,9 @@ static void __init select_freq_plan(void)
 		l2_freq_tbl_size = ARRAY_SIZE(l2_freq_tbl_8627);
 	} else if (cpu_is_msm8930()) {
 		enum pvs pvs_id = get_pvs();
-
+#ifdef CONFIG_DEBUG_FS
+		krait_chip_variant = pvs_id;
+#endif
 		scalable = scalable_8930;
 		acpu_freq_tbl = acpu_freq_tbl_8930_pvs[pvs_id];
 		l2_freq_tbl = l2_freq_tbl_8930;
@@ -2059,6 +2061,9 @@ static void __init select_freq_plan(void)
 	} else {
 		BUG();
 	}
+#ifdef CONFIG_DEBUG_FS
+	krait_version = tbl_selected;
+#endif
 	BUG_ON(!acpu_freq_tbl);
 	if (krait_needs_vmin()) {
 		pr_info("Applying min 1.15v fix for Krait Errata 26\n");
@@ -2195,8 +2200,8 @@ struct platform_device msm8930aa_device_perf_lock = {
 #ifdef CONFIG_DEBUG_FS
 static int krait_variant_debugfs_show(struct seq_file *s, void *data)
 {
-        seq_printf(s, "Your cpu is: \n");
-        seq_printf(s, "[%s] Krait Version 1 \n", ((krait_version == 1) ? "X" : " "));
+	seq_printf(s, "Your cpu is: \n");
+	seq_printf(s, "[%s] Krait Version 1 \n", ((krait_version == 1) ? "X" : " "));
 	seq_printf(s, "[%s] Krait Version 2 \n", ((krait_version == 2) ? "X" : " "));
 	seq_printf(s, "Your krait chip uses table: \n");
 	seq_printf(s, "[%s] SLOW \n", ((krait_chip_variant == PVS_SLOW) ? "X" : " "));
