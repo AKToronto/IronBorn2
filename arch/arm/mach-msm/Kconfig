@@ -442,6 +442,13 @@ config PERFLOCK_FIX_UP
         default y
         bool "HTC Performance Lock Fix Up"
 
+config PERFLOCK_HACK
+        depends on PERFLOCK
+        default y
+        bool "HTC Performance Lock HACK"
+	    help
+	      Basically removes Perflock but allows insertion of precompiled HTC modules
+
 config PERFLOCK_BOOT_LOCK
         depends on PERFLOCK
         default n
