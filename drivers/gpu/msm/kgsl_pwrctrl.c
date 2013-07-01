@@ -695,6 +695,25 @@ static int kgsl_pwrctrl_gputime_in_state_show(struct device *dev,
 	return len;
 }
 
+static int kgsl_pwrctrl_gpu_available_frequencies_show(
+					struct device *dev,
+					struct device_attribute *attr,
+					char *buf)
+{
+	struct kgsl_device *device = kgsl_device_from_dev(dev);
+	struct kgsl_pwrctrl *pwr;
+	int index, num_chars = 0;
+
+	if (device == NULL)
+		return 0;
+	pwr = &device->pwrctrl;
+	for (index = 0; index < pwr->num_pwrlevels - 1; index++)
+		num_chars += snprintf(buf + num_chars, PAGE_SIZE, "%d ",
+		pwr->pwrlevels[index].gpu_freq);
+	buf[num_chars++] = '\n';
+	return num_chars;
+}
+
 DEVICE_ATTR(gpuclk, 0644, kgsl_pwrctrl_gpuclk_show, kgsl_pwrctrl_gpuclk_store);
 DEVICE_ATTR(max_gpuclk, 0644, kgsl_pwrctrl_max_gpuclk_show,
 	kgsl_pwrctrl_max_gpuclk_store);
@@ -723,6 +742,10 @@ DEVICE_ATTR(num_pwrlevels, 0444,
 DEVICE_ATTR(gpubusy_time, 0644, kgsl_pwrctrl_gpubusy_time_show, NULL);
 DEVICE_ATTR(gpubusy_time_in_state, 0644, kgsl_pwrctrl_gpubusy_time_in_state_show, NULL);
 DEVICE_ATTR(gputime_in_state, 0444, kgsl_pwrctrl_gputime_in_state_show, NULL);
+DEVICE_ATTR(gpu_available_frequencies, 0444,
+	kgsl_pwrctrl_gpu_available_frequencies_show,
+	NULL);
+DEVICE_ATTR(init_pwrlevel, 0644, kgsl_pwrctrl_init_pwrlevel_show, kgsl_pwrctrl_init_pwrlevel_store);
 
 static const struct device_attribute *pwrctrl_attr_list[] = {
 	&dev_attr_gpuclk,
@@ -741,6 +764,8 @@ static const struct device_attribute *pwrctrl_attr_list[] = {
 	&dev_attr_gpubusy_time,
 	&dev_attr_gpubusy_time_in_state,
 	&dev_attr_gputime_in_state,
+	&dev_attr_gpu_available_frequencies,
+	&dev_attr_init_pwrlevel,
 	NULL
 };
 
