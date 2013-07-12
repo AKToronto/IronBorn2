@@ -109,6 +109,9 @@ static void send_cable_connect_notify(int cable_type)
 	mutex_lock(&cable_notify_sem);
 	CABLE_DEBUG("%s: cable_type = %d\n", __func__, cable_type);
 
+	if (cable_type == CONNECT_TYPE_UNKNOWN)
+		cable_type = CONNECT_TYPE_AC;
+
 	if (pInfo->ac_9v_gpio && (cable_type == CONNECT_TYPE_USB
 				|| cable_type == CONNECT_TYPE_AC
 				|| cable_type == CONNECT_TYPE_MHL_AC)) {
