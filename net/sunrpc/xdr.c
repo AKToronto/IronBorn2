@@ -699,7 +699,7 @@ static void __read_bytes_from_xdr_buf(struct xdr_buf *subbuf, void *obj, unsigne
 
 int read_bytes_from_xdr_buf(struct xdr_buf *buf, unsigned int base, void *obj, unsigned int len)
 {
-	struct xdr_buf subbuf;
+	struct xdr_buf subbuf = {.page_base = 0};
 	int status;
 	subbuf.pages = 0;
 	subbuf.page_base = 0; 
@@ -733,7 +733,7 @@ static void __write_bytes_to_xdr_buf(struct xdr_buf *subbuf, void *obj, unsigned
 
 int write_bytes_to_xdr_buf(struct xdr_buf *buf, unsigned int base, void *obj, unsigned int len)
 {
-	struct xdr_buf subbuf;
+	struct xdr_buf subbuf = {.page_base = 0};
 	int status;
 	subbuf.pages = 0;
 	subbuf.page_base = 0; 
