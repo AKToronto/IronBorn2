@@ -7,6 +7,7 @@ endif
 obj-y += clock.o clock-voter.o clock-dummy.o
 obj-y += modem_notifier.o subsystem_map.o
 obj-$(CONFIG_CPU_FREQ_MSM) += cpufreq.o
+obj-$(CONFIG_MSM_MPDEC) += msm_mpdecision.o
 obj-$(CONFIG_DEBUG_FS) += nohlt.o clock-debug.o
 obj-$(CONFIG_KEXEC) += msm_kexec.o
 
@@ -439,7 +440,7 @@ obj-$(CONFIG_MSM_DCVS) += msm_dcvs_scm.o msm_dcvs.o msm_dcvs_idle.o
 obj-$(CONFIG_MSM_RUN_QUEUE_STATS) += msm_rq_stats.o
 obj-$(CONFIG_MSM_SHOW_RESUME_IRQ) += msm_show_resume_irq.o
 obj-$(CONFIG_BT_MSM_PINTEST)  += btpintest.o
-obj-$(CONFIG_MSM_FAKE_BATTERY) += fish_battery.o
+obj-$(CONFIG_MSM_FAKE_BATTERY) += fish_battery.oobj-$(CONFIG_MSM_MPDEC) += msm_mpdecision.o
 obj-$(CONFIG_MSM_RPC_VIBRATOR) += msm_vibrator.o
 ifdef CONFIG_ARCH_APQ8064
 	obj-$(CONFIG_MSM_NATIVE_RESTART) += restart-apq8064.o
