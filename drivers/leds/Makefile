@@ -20,6 +20,7 @@ obj-$(CONFIG_LEDS_SUNFIRE)		+= leds-sunfire.o
 obj-$(CONFIG_LEDS_PCA9532)		+= leds-pca9532.o
 obj-$(CONFIG_LEDS_PM8XXX)		+= leds-pm8xxx.o
 obj-$(CONFIG_LEDS_PM8921)               += leds-pm8921.o
+obj-$(CONFIG_LEDS_PM8921_multiplier)	+= leds-pm8921-multiplier.o
 obj-$(CONFIG_LEDS_PM8038)		+= leds-pm8038.o
 obj-$(CONFIG_LEDS_GPIO_REGISTER)	+= leds-gpio-register.o
 obj-$(CONFIG_LEDS_GPIO)			+= leds-gpio.o

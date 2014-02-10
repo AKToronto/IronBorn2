@@ -306,6 +306,13 @@ config LEDS_PM8921
           To compile this driver as a module, choose M here: the module will
           be called leds-pmic8921.
 
+config LEDS_PM8921_multiplier
+	bool "LED off timer multiplier for PM8921"
+	depends on LEDS_PM8921
+	help
+	  This option allow to use a multiplier for the off timer of LED
+	  notifications (0 = infinite, else is normal time x multiplier.
+
 config LEDS_PM8038
         tristate "LED Support for Qualcomm PMIC8038"
         depends on MFD_PM8XXX
