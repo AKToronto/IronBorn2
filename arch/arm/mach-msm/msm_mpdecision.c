@@ -23,12 +23,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifdef CONFIG_FB
-#include <linux/fb.h>
-#elif defined CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
-#endif
 #include <linux/init.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
 #include <linux/cpufreq.h>
 #include <linux/workqueue.h>
 #include <linux/completion.h>
@@ -86,7 +84,6 @@ struct msm_mpdec_cpudata_t {
 };
 static DEFINE_PER_CPU(struct msm_mpdec_cpudata_t, msm_mpdec_cpudata);
 
-static struct notifier_block msm_mpdec_fb_notif;
 static struct delayed_work msm_mpdec_work;
 static struct workqueue_struct *msm_mpdec_workq;
 static DEFINE_MUTEX(mpdec_msm_cpu_lock);
@@ -196,8 +193,8 @@ static void mpdec_cpu_up(int cpu) {
         per_cpu(msm_mpdec_cpudata, cpu).on_time = ktime_to_ms(ktime_get());
         per_cpu(msm_mpdec_cpudata, cpu).online = true;
         per_cpu(msm_mpdec_cpudata, cpu).times_cpu_hotplugged += 1;
-        pr_info(MPDEC_TAG"CPU[%d] off->on | Mask=[%d%d%d%d]\n",
-                cpu, cpu_online(0), cpu_online(1), cpu_online(2), cpu_online(3));
+        pr_info(MPDEC_TAG"CPU[%d] off->on | Mask=[%d%d]\n",
+                cpu, cpu_online(0), cpu_online(1));
         mutex_unlock(&per_cpu(msm_mpdec_cpudata, cpu).hotplug_mutex);
     }
 }
@@ -212,8 +209,8 @@ static void mpdec_cpu_down(int cpu) {
         per_cpu(msm_mpdec_cpudata, cpu).online = false;
         per_cpu(msm_mpdec_cpudata, cpu).on_time_total += on_time;
         per_cpu(msm_mpdec_cpudata, cpu).times_cpu_unplugged += 1;
-        pr_info(MPDEC_TAG"CPU[%d] on->off | Mask=[%d%d%d%d] | time online: %llu\n",
-                cpu, cpu_online(0), cpu_online(1), cpu_online(2), cpu_online(3), on_time);
+        pr_info(MPDEC_TAG"CPU[%d] on->off | Mask=[%d%d] | time online: %llu\n",
+                cpu, cpu_online(0), cpu_online(1), on_time);
         mutex_unlock(&per_cpu(msm_mpdec_cpudata, cpu).hotplug_mutex);
     }
 }
@@ -277,8 +274,8 @@ static int mp_decision(void) {
 
     last_time = ktime_to_ms(ktime_get());
 #if DEBUG
-    pr_info(MPDEC_TAG"[DEBUG] rq: %u, new_state: %i | Mask=[%d%d%d%d]\n",
-            rq_depth, new_state, cpu_online(0), cpu_online(1), cpu_online(2), cpu_online(3));
+    pr_info(MPDEC_TAG"[DEBUG] rq: %u, new_state: %i | Mask=[%d%d]\n",
+            rq_depth, new_state, cpu_online(0), cpu_online(1));
 #endif
     return new_state;
 }
@@ -476,7 +473,6 @@ static void mpdec_input_callback(struct work_struct *unused) {
     return;
 }
 
-extern int bricked_thermal_throttled;
 static void mpdec_input_event(struct input_handle *handle, unsigned int type,
         unsigned int code, int value) {
     int i = 0;
@@ -486,11 +482,6 @@ static void mpdec_input_event(struct input_handle *handle, unsigned int type,
 
     if (!is_screen_on)
         return;
-
-#ifdef CONFIG_BRICKED_THERMAL
-    if (bricked_thermal_throttled > 0)
-        return;
-#endif
 
     for_each_online_cpu(i) {
         queue_work_on(i, mpdec_input_wq, &per_cpu(mpdec_input_work, i));
@@ -558,7 +549,7 @@ static struct input_handler mpdec_input_handler = {
 };
 #endif
 
-static void msm_mpdec_suspend(void) {
+static void msm_mpdec_early_suspend(struct early_suspend *h) {
     int cpu = nr_cpu_ids;
 #ifdef CONFIG_MSM_MPDEC_INPUTBOOST_CPUMIN
     is_screen_on = false;
@@ -585,7 +576,7 @@ static void msm_mpdec_suspend(void) {
     pr_info(MPDEC_TAG"Screen -> off. Deactivated mpdecision.\n");
 }
 
-static void msm_mpdec_resume(void) {
+static void msm_mpdec_late_resume(struct early_suspend *h) {
     int cpu = nr_cpu_ids;
 #ifdef CONFIG_MSM_MPDEC_INPUTBOOST_CPUMIN
     is_screen_on = true;
@@ -610,55 +601,11 @@ static void msm_mpdec_resume(void) {
             }
         }
 
-        pr_info(MPDEC_TAG"Screen -> on. Activated mpdecision. | Mask=[%d%d%d%d]\n",
-                cpu_online(0), cpu_online(1), cpu_online(2), cpu_online(3));
+        pr_info(MPDEC_TAG"Screen -> on. Activated mpdecision. | Mask=[%d%d]\n",
+                cpu_online(0), cpu_online(1));
     } else {
         pr_info(MPDEC_TAG"Screen -> on\n");
     }
-}
-
-#ifdef CONFIG_FB
-static int fb_notifier_callback(struct notifier_block *this,
-				unsigned long event, void *data) {
-	int blank_mode;
-	static int first = 1;
-
-	if (event != FB_EVENT_BLANK || data == NULL)
-		return 0;
-
-	blank_mode = *(int*)(((struct fb_event*)data)->data);
-	pr_debug("FB_CB: event = %lu, blank mode = %d\n", event, blank_mode);
-
-	switch (blank_mode) {
-	case FB_BLANK_UNBLANK:
-		if (first) {
-			msm_mpdec_resume();
-			first = 0;
-		} else {
-			first = 1;
-		}
-		break;
-	case FB_BLANK_POWERDOWN:
-		if (first) {
-			msm_mpdec_suspend();
-			first = 0;
-		} else {
-			first = 1;
-		}
-		break;
-	default:
-		break;
-	}
-
-	return 0;
-}
-#elif defined CONFIG_HAS_EARLYSUSPEND
-static void msm_mpdec_early_suspend(struct early_suspend *h) {
-       msm_mpdec_suspend();
-}
-
-static void msm_mpdec_late_resume(struct early_suspend *h) {
-       msm_mpdec_resume();
 }
 
 static struct early_suspend msm_mpdec_early_suspend_handler = {
@@ -666,7 +613,6 @@ static struct early_suspend msm_mpdec_early_suspend_handler = {
     .suspend = msm_mpdec_early_suspend,
     .resume = msm_mpdec_late_resume,
 };
-#endif
 
 /**************************** SYSFS START ****************************/
 struct kobject *msm_mpdec_kobject;
@@ -1206,16 +1152,7 @@ static int __init msm_mpdec_init(void) {
         queue_delayed_work(msm_mpdec_workq, &msm_mpdec_work,
                            msecs_to_jiffies(msm_mpdec_tuners_ins.delay));
 
-#ifdef CONFIG_FB
-	msm_mpdec_fb_notif.notifier_call = fb_notifier_callback;
-	if (fb_register_client(&msm_mpdec_fb_notif) != 0) {
-		pr_err("%s: Failed to register fb callback\n", __func__);
-		err = -EINVAL;
-		goto err_fb_register;
-	}
-#elif defined CONFIG_HAS_EARLYSUSPEND
-	register_early_suspend(&msm_mpdec_early_suspend_handler);
-#endif
+    register_early_suspend(&msm_mpdec_early_suspend_handler);
 
     msm_mpdec_kobject = kobject_create_and_add("msm_mpdecision", kernel_kobj);
     if (msm_mpdec_kobject) {
@@ -1234,7 +1171,6 @@ static int __init msm_mpdec_init(void) {
 
     pr_info(MPDEC_TAG"%s init complete.", __func__);
 
-err_fb_register:
     return err;
 }
 late_initcall(msm_mpdec_init);
