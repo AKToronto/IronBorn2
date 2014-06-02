@@ -1850,7 +1850,6 @@ extern int task_free_unregister(struct notifier_block *n);
  * child is not running and in turn not changing child->flags
  * at the same time the parent does it.
  */
->>>>>>> 8f860d4... kernel: add back some comments HTC removed
 #define clear_stopped_child_used_math(child) do { (child)->flags &= ~PF_USED_MATH; } while (0)
 #define set_stopped_child_used_math(child) do { (child)->flags |= PF_USED_MATH; } while (0)
 #define clear_used_math() clear_stopped_child_used_math(current)
