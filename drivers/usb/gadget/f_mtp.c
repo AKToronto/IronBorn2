@@ -65,7 +65,7 @@
 static int htc_mtp_performance_debug;
 static int htc_mtp_open_state;
 #ifdef CONFIG_PERFLOCK
-static int mtp_qos;
+//static int mtp_qos;
 #include <mach/perflock.h>
 #endif
 

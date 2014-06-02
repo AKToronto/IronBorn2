@@ -94,6 +94,7 @@ static int test_task_flag(struct task_struct *p, int flag)
 	return 0;
 }
 
+/*
 static int
 task_fork_notify_func(struct notifier_block *self, unsigned long val, void *data);
 
@@ -108,6 +109,7 @@ task_fork_notify_func(struct notifier_block *self, unsigned long val, void *data
 
 	return NOTIFY_OK;
 }
+*/
 
 static void dump_tasks(void)
 {
