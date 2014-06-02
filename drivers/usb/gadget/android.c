@@ -1008,6 +1008,7 @@ static struct android_usb_function ccid_function = {
 static int mtp_function_init(struct android_usb_function *f,
 		struct usb_composite_dev *cdev)
 {
+#ifdef CONFIG_PERFLOCK
 #if defined(CONFIG_PERFLOCK) && !defined(CONFIG_PERFLOCK_HACK)
 	struct android_dev *dev = _android_dev;
 #endif
