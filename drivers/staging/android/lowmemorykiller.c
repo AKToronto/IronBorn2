@@ -283,7 +283,7 @@ static struct shrinker lowmem_shrinker = {
 
 static int __init lowmem_init(void)
 {
-	task_fork_register(&task_fork_nb);
+	//task_fork_register(&task_fork_nb);
 	register_shrinker(&lowmem_shrinker);
 	return 0;
 }
@@ -291,7 +291,7 @@ static int __init lowmem_init(void)
 static void __exit lowmem_exit(void)
 {
 	unregister_shrinker(&lowmem_shrinker);
-	task_fork_unregister(&task_fork_nb);
+	//task_fork_unregister(&task_fork_nb);
 }
 
 #ifdef CONFIG_ANDROID_LOW_MEMORY_KILLER_AUTODETECT_OOM_ADJ_VALUES
