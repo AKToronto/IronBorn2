@@ -3890,7 +3890,6 @@ unsigned long get_work_func_of_task_struct(struct task_struct *tsk)
 	}
 	return 0;
 }
-#endif /* CONFIG_FREEZER */
 
 void show_pending_work_on_gcwq(void)
 {
