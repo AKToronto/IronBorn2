@@ -1,4 +1,4 @@
-/* Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2011-2013, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -33,18 +33,23 @@
 #define LPASS_BE_INCALL_RECORD_TX "INCALL_RECORD_RX"
 #define LPASS_BE_SEC_I2S_RX "SECONDARY_I2S_RX"
 
-#define LPASS_BE_MI2S_RX "MI2S_RX"
-#define LPASS_BE_MI2S_TX "MI2S_TX"
-#define LPASS_BE_STUB_RX "STUB_RX"
-#define LPASS_BE_STUB_TX "STUB_TX"
-#define LPASS_BE_SLIMBUS_1_RX "SLIMBUS_1_RX"
-#define LPASS_BE_SLIMBUS_1_TX "SLIMBUS_1_TX"
-#define LPASS_BE_STUB_1_TX "STUB_1_TX"
-#define LPASS_BE_SLIMBUS_3_RX "SLIMBUS_3_RX"
-#define LPASS_BE_SLIMBUS_3_TX "SLIMBUS_3_TX"
-#define LPASS_BE_SLIMBUS_4_RX "SLIMBUS_4_RX"
-#define LPASS_BE_SLIMBUS_4_TX "SLIMBUS_4_TX"
+#define LPASS_BE_MI2S_RX "(Backend) MI2S_RX"
+#define LPASS_BE_MI2S_TX "(Backend) MI2S_TX"
+#define LPASS_BE_STUB_RX "(Backend) STUB_RX"
+#define LPASS_BE_STUB_TX "(Backend) STUB_TX"
+#define LPASS_BE_SLIMBUS_1_RX "(Backend) SLIMBUS_1_RX"
+#define LPASS_BE_SLIMBUS_1_TX "(Backend) SLIMBUS_1_TX"
+#define LPASS_BE_STUB_1_TX "(Backend) STUB_1_TX"
+#define LPASS_BE_SLIMBUS_3_RX "(Backend) SLIMBUS_3_RX"
+#define LPASS_BE_SLIMBUS_3_TX "(Backend) SLIMBUS_3_TX"
+#define LPASS_BE_SLIMBUS_4_RX "(Backend) SLIMBUS_4_RX"
+#define LPASS_BE_SLIMBUS_4_TX "(Backend) SLIMBUS_4_TX"
 
+/* For multimedia front-ends, asm session is allocated dynamically.
+ * Hence, asm session/multimedia front-end mapping has to be maintained.
+ * Due to this reason, additional multimedia front-end must be placed before
+ * non-multimedia front-ends.
+ */
 
 enum {
 	MSM_FRONTEND_DAI_MULTIMEDIA1 = 0,
@@ -54,8 +59,8 @@ enum {
 	MSM_FRONTEND_DAI_MULTIMEDIA5,
 	MSM_FRONTEND_DAI_MULTIMEDIA6,
 	MSM_FRONTEND_DAI_MULTIMEDIA7,
-	MSM_FRONTEND_DAI_MULTIMEDIA_STUB,
 	MSM_FRONTEND_DAI_MULTIMEDIA8,
+	MSM_FRONTEND_DAI_MULTIMEDIA_STUB,
 	MSM_FRONTEND_DAI_CS_VOICE,
 	MSM_FRONTEND_DAI_VOIP,
 	MSM_FRONTEND_DAI_AFE_RX,
@@ -63,7 +68,8 @@ enum {
 	MSM_FRONTEND_DAI_VOICE_STUB,
 	MSM_FRONTEND_DAI_VOLTE,
 	MSM_FRONTEND_DAI_VOICE2,
-   MSM_FRONTEND_DAI_VOICE2_STUB,
+	MSM_FRONTEND_DAI_VOLTE_STUB,
+	MSM_FRONTEND_DAI_VOICE2_STUB,
 	MSM_FRONTEND_DAI_MAX,
 };
 
@@ -106,15 +112,15 @@ enum {
 
 enum msm_pcm_routing_event {
 	MSM_PCM_RT_EVT_BUF_RECFG,
+	MSM_PCM_RT_EVT_DEVSWITCH,
 	MSM_PCM_RT_EVT_MAX,
 };
-
-struct msm_pcm_routing_ops {
-	int (*get_q6_effect) (void);
-};
-
-void msm_pcm_routing_reg_phy_stream(int fedai_id, int dspst_id,
-	int stream_type);
+/* dai_id: front-end ID,
+ * dspst_id:  DSP audio stream ID
+ * stream_type: playback or capture
+ */
+void msm_pcm_routing_reg_phy_stream(int fedai_id, bool perf_mode,
+				int dspst_id, int stream_type);
 void msm_pcm_routing_reg_psthr_stream(int fedai_id, int dspst_id,
 		int stream_type, int enable);
 
@@ -123,13 +129,11 @@ struct msm_pcm_routing_evt {
 	void *priv_data;
 };
 
-void msm_pcm_routing_reg_phy_stream_v2(int fedai_id,
+void msm_pcm_routing_reg_phy_stream_v2(int fedai_id, bool perf_mode,
 				       int dspst_id, int stream_type,
 				       struct msm_pcm_routing_evt event_info);
 
 void msm_pcm_routing_dereg_phy_stream(int fedai_id, int stream_type);
-
-int msm_pcm_routing_get_port(struct snd_pcm_substream *substream);
 
 int lpa_set_volume(unsigned volume);
 
@@ -138,7 +142,5 @@ int msm_routing_check_backend_enabled(int fedai_id);
 int multi_ch_pcm_set_volume(unsigned volume);
 
 int compressed_set_volume(unsigned volume);
-int compressed2_set_volume(unsigned volume);
 
-void htc_register_pcm_routing_ops(struct msm_pcm_routing_ops *ops);
-#endif 
+#endif /*_MSM_PCM_H*/

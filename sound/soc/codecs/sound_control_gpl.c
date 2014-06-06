@@ -28,8 +28,8 @@ extern struct snd_kcontrol_new *gpl_faux_snd_controls_ptr;
 #define SOUND_CONTROL_MAJOR_VERSION	2
 #define SOUND_CONTROL_MINOR_VERSION	1
 
-#define CAMCORDER_MIC_L_OFFSET  17
-#define CAMCORDER_MIC_R_OFFSET  18
+#define CAMCORDER_MIC_L_OFFSET	17
+#define CAMCORDER_MIC_R_OFFSET	18
 #define HANDSET_MIC_OFFSET      21
 #define SPEAKER_OFFSET          12
 #define HEADPHONE_L_OFFSET      8
@@ -330,3 +330,4 @@ module_exit(sound_control_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Paul Reioux <reioux@gmail.com>");
 MODULE_DESCRIPTION("Sound Control Module GPL Edition");
+
